@@ -21,7 +21,7 @@ jobs:
             -v ${{ github.workspace }}:/app \
             -w /app \
             node:16 \
-            /bin/bash -c "npm install fs axios stream-web youtubei.js && node ./generate.ts"
+            /bin/bash -c "npm install fs stream-web youtubei.js && node ./generate.js"
 
       - name: Deploy to GitHub Pages
         uses: peaceiris/actions-gh-pages@v3
