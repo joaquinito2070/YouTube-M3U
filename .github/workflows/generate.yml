@@ -2,38 +2,32 @@ name: Generate and Deploy M3U8 Playlists
 
 on:
   schedule:
-    - cron: '0 */3 * * *'  # Run every 3 hours
-  workflow_dispatch:  # Allow manual triggering
+    - cron: '0 */3 * * *'
+  workflow_dispatch:
 
 jobs:
   generate-and-deploy:
     runs-on: ubuntu-latest
-
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v2
+      - name: Checkout repository
+        uses: actions/checkout@v3
 
-    - name: Set up Docker
-      uses: docker/setup-buildx-action@v1
+      - name: Set up Docker
+        uses: docker/setup-buildx-action@v2
 
-    - name: Build and run Docker image
-      run: |
-        docker build -t m3u8-generator - <<EOF
-        FROM node:14
-        WORKDIR /app
-        RUN npm install fs axios stream-web youtubei.js
-        COPY generate.ts .
-        CMD ["node", "generate.ts"]
-        EOF
-        docker run --name m3u8-container m3u8-generator
+      - name: Run Docker container
+        run: |
+          docker run --rm \
+            -v ${{ github.workspace }}:/app \
+            -w /app \
+            node:16 \
+            /bin/bash -c "npm install fs axios stream-web youtubei.js && node ./generate.ts"
 
-    - name: Copy generated files
-      run: |
-        docker cp m3u8-container:/app/youtube_*.m3u ./
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: .
+          publish_branch: gh-pages
+          force_orphan: true
 
-    - name: Deploy to GitHub Pages
-      uses: peaceiris/actions-gh-pages@v3
-      with:
-        github_token: ${{ secrets.GITHUB_TOKEN }}
-        publish_dir: .
-        publish_branch: gh-pages
