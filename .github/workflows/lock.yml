@@ -1,0 +1,59 @@
+name: Auto-Close and Lock Issues and PRs
+
+on:
+  issues:
+    types: [opened]
+  pull_request:
+    types: [opened]
+
+jobs:
+  auto-close-and-lock:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Close Issue or PR
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            
+            const message = "Este es un repositorio automatizado que solo puede ser modificado por un bot. No se aceptan Pull Requests ni Issues manuales. Este hilo será cerrado y bloqueado automáticamente.";
+            
+            if (context.eventName === 'issues') {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body: message
+              });
+              await github.rest.issues.update({
+                owner,
+                repo,
+                issue_number,
+                state: 'closed'
+              });
+              await github.rest.issues.lock({
+                owner,
+                repo,
+                issue_number
+              });
+            } else if (context.eventName === 'pull_request') {
+              await github.rest.issues.createComment({
+                owner,
+                repo,
+                issue_number,
+                body: message
+              });
+              await github.rest.pulls.update({
+                owner,
+                repo,
+                pull_number: issue_number,
+                state: 'closed'
+              });
+              await github.rest.issues.lock({
+                owner,
+                repo,
+                issue_number
+              });
+            }
