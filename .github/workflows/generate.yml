@@ -21,15 +21,15 @@ jobs:
         docker build -t m3u8-generator - <<EOF
         FROM node:14
         WORKDIR /app
-        RUN npm install fs axios stream-web stream youtubei.js
+        RUN npm install fs axios stream-web youtubei.js
         COPY generate.ts .
         CMD ["node", "generate.ts"]
         EOF
         docker run --name m3u8-container m3u8-generator
 
-    - name: Copy generated files from Docker container
+    - name: Copy generated files
       run: |
-        docker cp m3u8-container:/app/youtube_*.m3u .
+        docker cp m3u8-container:/app/youtube_*.m3u ./
 
     - name: Deploy to GitHub Pages
       uses: peaceiris/actions-gh-pages@v3
@@ -37,4 +37,3 @@ jobs:
         github_token: ${{ secrets.GITHUB_TOKEN }}
         publish_dir: .
         publish_branch: gh-pages
-        force_orphan: true
