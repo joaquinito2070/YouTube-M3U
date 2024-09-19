@@ -21,7 +21,6 @@ jobs:
         docker build -t m3u8-generator . -f- <<EOF
         FROM node:14
         WORKDIR /app
-        COPY package.json ./
         RUN npm install fs axios youtubei.js
         COPY . .
         CMD ["node", "generate.ts"]
