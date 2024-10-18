@@ -1,0 +1,9 @@
+{
+  "dependencies": {
+    "axios": "^1.7.7",
+    "fs": "^0.0.1-security",
+    "socks-proxy-agent": "^8.0.4",
+    "stream-web": "^0.5.2",
+    "youtubei.js": "^10.5.0"
+  }
+}
